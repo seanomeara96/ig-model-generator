@@ -13,10 +13,15 @@ const replicate = new Replicate({ auth });
 
 const model = "mcai/realistic-vision-v2.0:63ed33a0e79013860417f5a9d45f8a53f0b2f1963bdf1d05259c5cbcf2d70107";
 
-const name = "zoey-agron"
+const name = "birgitte-agron"
+//"zoey-agron"
 // "diana-justice"
 //"florence-agron"
-const influencerName = "dark blonde, blue-eyed individual irish girl (Zoey Deutch | Dianna Agron),"
+const influencerName = "dark blonde, blue-eyed individual irish woman (Birgitte Hjort Sørensen | Dianna Agron)"
+//"dark blonde, blue-eyed individual irish woman (Birgitte Hjort Sørensen | Sydney Sweeney)"
+//"dark blonde, blue-eyed individual irish girl (Liana Liberato | Sydney Sweeney)"
+//"dark blonde, blue-eyed individual irish girl (Liana Liberato | Dianna Agron)"
+//"dark blonde, blue-eyed individual irish girl (Zoey Deutch | Dianna Agron),"
 //"dark blonde, blue-eyed individual irish girl (Florence Pugh | Dianna Agron)"
   //"blonde, blue-eyed individual (Dianna Agron | Victoria Justice)";
 
