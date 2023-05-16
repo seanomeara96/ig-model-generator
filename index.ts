@@ -18,6 +18,7 @@ const model =
   "mcai/realistic-vision-v2.0:63ed33a0e79013860417f5a9d45f8a53f0b2f1963bdf1d05259c5cbcf2d70107";
 
 const models = [
+  ["ana-agron", "dark blonde, blue-eyed individual irish girl (Ana de Armas | Diana Agron)"],
   [
     "alba-biel",
     "dark blonde, blue-eyed individual irish girl (Jessica Alba | Jessica Biel)",
