@@ -5,12 +5,14 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "image-downloader": "^4.3.0",
+    "nodemon": "^2.0.22",
     "replicate": "^0.12.1",
     "sqlite3": "^5.1.6",
     "ts-node": "^10.9.1"
   },
   "scripts": {
     "start": "npx ts-node index.ts",
-    "serve": "npx ts-node server.ts"
+    "serve": "npx ts-node server.ts",
+    "dev": "npx nodemon --exec ts-node server.ts --watch */**.ts  --ignore node_modules"
   }
 }
