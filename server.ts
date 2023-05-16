@@ -1,9 +1,13 @@
 import express from "express";
 import sqlite from "sqlite3";
-
+import fs from "fs";
+import path from "path"
 const db = new sqlite.Database("main.db");
 
 const app = express();
+
+// Configure the static images folder
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 function body(content: string) {
   return `<!DOCTYPE html>
@@ -79,7 +83,7 @@ function body(content: string) {
 
 function card(obj: any) {
   return `<div style="position:relative">
-        <img src="${obj.url}" alt="${obj.prompt}"/>
+        <img src="/${obj.url}" alt="${obj.prompt}"/>
         <form style="position: absolute; bottom:0 ; right: 0;" method="POST" action="/images/${obj.id}/delete">
             <button>Delete</button>
         </form>
@@ -87,8 +91,8 @@ function card(obj: any) {
 }
 
 function renderImages(images: any[]): string {
-  const imageCards =  images.map((i: any) => card(i)).join("");
-  return `<div id="container">${imageCards}</div>`
+  const imageCards = images.map((i: any) => card(i)).join("");
+  return `<div id="container">${imageCards}</div>`;
 }
 
 function getModelNames(): Promise<any[]> {
@@ -115,7 +119,7 @@ function renderNav(opts: any): string {
 app.get("/", async function (req, res) {
   try {
     const images: any[] = await new Promise(function (resolve, reject) {
-      db.all("SELECT id, url, prompt FROM images", (err, rows) =>
+      db.all("SELECT id, file_path as url, prompt FROM images", (err, rows) =>
         err ? reject(err) : resolve(rows)
       );
     });
@@ -128,6 +132,7 @@ app.get("/", async function (req, res) {
 
     res.send(body(nav + content));
   } catch (err) {
+    console.log(err)
     res.sendStatus(500);
   }
 });
@@ -136,7 +141,7 @@ app.get("/models/:name", async function (req, res) {
   try {
     const images: any[] = await new Promise(function (resolve, reject) {
       db.all(
-        "SELECT id, url, prompt FROM images WHERE name = ?",
+        "SELECT id, file_path as url, prompt FROM images WHERE name = ?",
         [req.params.name],
         (err, rows) => (err ? reject(err) : resolve(rows))
       );
@@ -149,19 +154,41 @@ app.get("/models/:name", async function (req, res) {
 
     res.send(body(nav + content));
   } catch (err) {
+    console.log(err)
     res.sendStatus(500);
   }
 });
 
 app.post("/images/:id/delete", async function (req, res) {
   try {
+    const row: any = await new Promise(function (resolve, reject) {
+      db.get(
+        "SELECT file_path FROM images WHERE id = ?",
+        [req.params.id],
+        (err, row) => (err ? reject(err) : resolve(row))
+      );
+    })
+
+
+    if(!row){
+      throw "no results"
+    }
+
+    const pathToImg = row.file_path
+
+    await new Promise(function (resolve, reject) {
+      fs.unlink(pathToImg, (err) => (err ? reject(err) : resolve(true)));
+    });
+
+
     await new Promise(function (resolve, reject) {
       db.run("DELETE FROM images WHERE  id = ?", [req.params.id], (err) =>
         err ? reject(err) : resolve(true)
       );
     });
-    res.sendStatus(200)
+    res.sendStatus(200);
   } catch (err) {
+    console.log(err)
     res.sendStatus(500);
   }
 });
