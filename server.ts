@@ -10,13 +10,13 @@ const app = express();
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 function body(content: string) {
-  return `<!DOCTYPE html>
+  return /*html*/`<!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
+        <title>Model Gallery</title>
     
         <style>
           #container {
@@ -82,7 +82,7 @@ function body(content: string) {
 }
 
 function card(obj: any) {
-  return `<div style="position:relative">
+  return /*HTML*/`<div style="position:relative">
         <img src="/${obj.url}" alt="${obj.prompt}"/>
         <form style="position: absolute; bottom:0 ; right: 0;" method="POST" action="/images/${obj.id}/delete">
             <button>Delete</button>
@@ -92,7 +92,7 @@ function card(obj: any) {
 
 function renderImages(images: any[]): string {
   const imageCards = images.map((i: any) => card(i)).join("");
-  return `<div id="container">${imageCards}</div>`;
+  return /*HTML*/`<div id="container">${imageCards}</div>`;
 }
 
 function getModelNames(): Promise<any[]> {
@@ -104,11 +104,11 @@ function getModelNames(): Promise<any[]> {
 }
 
 function renderNav(opts: any): string {
-  return `<nav>
+  return /*HTML*/`<nav>
     ${opts.names
       .map(
         (n: any) =>
-          `<a style="padding: 20px" href="/models/${n.name}">${n.name
+          /*HTML*/`<a style="padding: 20px" href="/models/${n.name}">${n.name
             .split("-")
             .join(" ")}</a>`
       )
