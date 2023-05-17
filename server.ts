@@ -3,7 +3,7 @@ import sqlite from "sqlite3";
 import fs from "fs";
 import path from "path";
 const db = new sqlite.Database("main.db");
-
+const siteTitle = "Virtual Vogue";
 const app = express();
 
 // Configure the static images folder
@@ -29,13 +29,27 @@ function base(props: {
             margin: 0;
             padding: 0;
             width: 100%;
-
+            overflow-x: hidden;
         }        
+
+        header {
+          background-color: #333;
+          color:#fff;
+        }
+
+        header h1 {
+          margin:0;
+          padding-top: 20px;
+        }
+
+        header h1 {
+          text-align: center;
+        }
 
         nav {
             display: flex;
             justify-content: center;
-            background-color: #333;
+            
         }
         
         nav ul {
@@ -103,6 +117,7 @@ function base(props: {
         
         #container div img {
           width: 100%;
+          aspect-ratio:512/768;
         }
   
         @media (min-width: 500px) {
@@ -170,6 +185,7 @@ function base(props: {
           if(items && items.length){
             for(const item of items){
               item.style.display = "inline-block"
+              item.style.visibility = "visible"
               item.classList.add("animate")
               await new Promise(resolve => setTimeout(resolve, 200))
             }
@@ -181,7 +197,7 @@ function base(props: {
 }
 
 function card(img: image) {
-  return /*HTML*/ `<div style="position:relative">
+  return /*HTML*/ `<div class="fade-grid-item" style="visibility: hidden; position:relative">
         <img src="/${img.url}" alt="${img.prompt}"/>
         <form 
           class="delete-form"
@@ -232,7 +248,14 @@ function renderNav(opts: any): string {
     const formattedName = formatName(name);
     navItems += `<li><a  href="/models/${name}">${formattedName}</a></li>`;
   }
-  return /*HTML*/ `<nav><ul>${navItems}</ul></nav>`;
+  return /*HTML*/ `
+  <header>
+  <h1>${siteTitle}</h1>
+  <nav>  
+    <ul>${navItems}</ul>
+  </nav>
+  </header>
+  `;
 }
 
 interface image {
