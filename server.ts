@@ -7,6 +7,7 @@ import path from "path";
 import { getDatabaseInstance } from "./db";
 import { home } from "./pages/home";
 import { modelGallery } from "./pages/model-gallery";
+import { base } from "./components/base";
 
 const db = getDatabaseInstance();
 const app = express();
@@ -17,6 +18,77 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.get("/", async function (req, res) {
   try {
     res.send(await home());
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+function creationForm(opts: {
+  scenarioPromptArr: {
+    scenario: string;
+    prompt: string;
+  }[];
+}): string {
+  let scenarioOptionsStr: string = "";
+  let scenarioPromptsOptionsStr: string = "";
+  for (let i = 0; i < opts.scenarioPromptArr.length; i++) {
+    const { scenario, prompt } = opts.scenarioPromptArr[i];
+    const newScenario = `<option value="${scenario}">${scenario}</option>`;
+    if(!scenarioOptionsStr.includes(newScenario)){
+        scenarioOptionsStr += newScenario;
+    }
+    scenarioPromptsOptionsStr += `<option value="${prompt}" data-parent="${scenario}">${prompt}</option>`;
+  }
+
+  return `<select id="firstInput">
+        ${scenarioOptionsStr}
+    </select>
+
+    <select id="secondInput">
+        ${scenarioPromptsOptionsStr}
+    </select>
+
+    <script>
+        window.addEventListener("DOMContentLoaded", function(){
+             const firstInput = document.getElementById('firstInput');
+             const secondInput = document.getElementById('secondInput');
+
+            // Listen for changes in the first selection input
+            firstInput.addEventListener('change', function() {
+            const selectedOption = firstInput.value; 
+
+            // Filter and add options based on the selected option
+            const filteredOptions = Array.from(secondInput.options).filter(function(option) {
+                return option.getAttribute('data-parent') === selectedOption;
+            });
+            
+            // Clear previous options in the second input
+            secondInput.innerHTML = '';
+            
+            filteredOptions.forEach(function(option) {
+                secondInput.appendChild(option);
+            });
+            });
+    }) 
+</script>`;
+}
+
+app.get("/create", async function (req, res) {
+  try {
+    const promptsArr = await new Promise(function (resolve, reject) {
+      db.all("SELECT scenario, prompt FROM prompts", (err, rows) =>
+        err
+          ? reject(err)
+          : resolve(rows as { scenario: string; prompt: string }[])
+      );
+    })as { scenario: string; prompt: string }[]
+
+    res.send(base({
+      pageTitle: "create a new model",
+      metaDescription: "create a new model",
+      content: creationForm({scenarioPromptArr: promptsArr})
+    }));
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
