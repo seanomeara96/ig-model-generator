@@ -12,8 +12,8 @@
     "ts-node": "^10.9.1"
   },
   "scripts": {
-    "start": "npx ts-node index.ts",
-    "serve": "npx ts-node server.ts",
-    "dev": "npx nodemon --exec ts-node server.ts --watch */**.ts  --ignore node_modules"
+    "start": "npx ts-node server.ts",
+    "dev": "npx nodemon --exec ts-node server.ts --watch . --ignore node_modules",
+    "build": "npx ts-node build.ts"
   }
 }

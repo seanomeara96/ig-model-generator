@@ -1,0 +1,136 @@
+export const styleTag = /*html*/`<style>
+  
+html,body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}        
+
+header {
+  background-color: #333;
+  color:#fff;
+}
+
+header h1 {
+  margin:0;
+  padding-top: 20px;
+}
+
+header h1 {
+  text-align: center;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: inline-block;
+    margin: 10px;
+}
+
+nav a {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+nav a:hover {
+    background-color: #666;
+}
+
+.img-grid {
+  width: 100%;
+  display: flex;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.img-grid > * {
+  width: 20%;
+  height: 100%;
+  position: relative;
+  aspect-ratio:512/768;
+}
+
+.img-grid > * > div{
+  width: 100%;
+  height: 100%;
+  position: relative;
+  aspect-ratio:512/768;
+}
+
+.img-grid > * img {
+  position: absolute;
+  top:0 ;
+  left:0;
+  width:100%;
+  height: 100%;
+  object-position: bottom;
+  object-fit: cover;
+}
+
+#container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#container div {
+  width: 100%;
+}
+
+#container div img {
+  width: 100%;
+  aspect-ratio:512/768;
+}
+
+@media (min-width: 500px) {
+  #container div {
+    width: 50%;
+  }
+}
+
+@media (min-width: 800px) {
+  #container div {
+    width: 33.33%;
+  }
+}
+
+@media (min-width: 1000px) {
+  #container div {
+    width: 25%;
+  }
+}
+
+@media (min-width: 1300px) {
+  #container div {
+    width: 10%;
+  }
+}
+@keyframes fadein {
+  from {
+    opacity: .0;
+    transform: scale(1.2)
+  }
+  to {
+    opacity: 1;
+    transform: scale(1)
+  }
+}
+.animate {
+  animation-name: fadein;
+  animation-duration: 1s;
+}
+</style>`
