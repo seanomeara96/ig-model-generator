@@ -128,6 +128,20 @@ function base(props: {
             width: 10%;
           }
         }
+        @keyframes fadein {
+          from {
+            opacity: .0;
+            transform: scale(1.2)
+          }
+          to {
+            opacity: 1;
+            transform: scale(1)
+          }
+        }
+        .animate {
+          animation-name: fadein;
+          animation-duration: 1s;
+        }
       </style>
     </head>
     <body>
@@ -150,6 +164,17 @@ function base(props: {
               }
           }))
         }
+
+        window.addEventListener("DOMContentLoaded", async function(){
+          const items = document.querySelectorAll(".fade-grid-item");
+          if(items && items.length){
+            for(const item of items){
+              item.style.display = "inline-block"
+              item.classList.add("animate")
+              await new Promise(resolve => setTimeout(resolve, 200))
+            }
+          }
+        })
     </script>
     </body>
   </html>`;
@@ -236,7 +261,7 @@ app.get("/", async function (req, res) {
       try {
         const images: image[] = await new Promise(function (resolve, reject) {
           db.all(
-            /*SQL*/`SELECT id, file_path as url, prompt FROM images WHERE name = ? ORDER BY RANDOM() LIMIT 1`,
+            /*SQL*/ `SELECT id, file_path as url, prompt FROM images WHERE name = ? ORDER BY RANDOM() LIMIT 1`,
             [model.name],
             (err, rows) => (err ? reject(err) : resolve(rows as image[]))
           );
@@ -256,16 +281,18 @@ app.get("/", async function (req, res) {
       if (modelImage.images) {
         for (let ii = 0; ii < modelImage.images.length; ii++) {
           const img = modelImage.images[ii];
-          gridImages += `<a style="color: inherit; text-decoration: none;" href="/models/${modelImage.name}">${card(img)}<h2>${formatName(
+          gridImages += `<a class="fade-grid-item" style="display: none; color: inherit; text-decoration: none;" href="/models/${
             modelImage.name
-          )}</h2></a>`;
+          }">${card(img)}<h2>${formatName(modelImage.name)}</h2></a>`;
         }
       }
     }
 
-    const grid = /*html*/ `<div class="img-grid">
+    const grid = /*html*/ `
+    <div class="img-grid">
       ${gridImages}
-    </div>`;
+    </div>
+    `;
 
     content += grid;
 
@@ -335,6 +362,7 @@ app.post("/images/:id/delete", async function (req, res) {
         err ? reject(err) : resolve(true)
       );
     });
+    
     res.sendStatus(200);
   } catch (err) {
     console.log(err);
