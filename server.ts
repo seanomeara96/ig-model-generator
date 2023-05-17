@@ -177,10 +177,12 @@ function renderImages(images: image[]): string {
   return /*HTML*/ `<div id="container">${imageCards}</div>`;
 }
 
-function getModelNames(): Promise<{ name: string }[]> {
+function getModelNames(randomOrder: boolean): Promise<{ name: string }[]> {
   return new Promise(function (resolve, reject) {
-    db.all("SELECT DISTINCT name FROM images ORDER BY RANDOM()", (err, rows) =>
-      err ? reject(err) : resolve(rows as { name: string }[])
+    db.all(
+      "SELECT DISTINCT name FROM images" +
+        (randomOrder ? " ORDER BY RANDOM()" : ""),
+      (err, rows) => (err ? reject(err) : resolve(rows as { name: string }[]))
     );
   });
 }
@@ -217,7 +219,7 @@ interface image {
 
 app.get("/", async function (req, res) {
   try {
-    const modelNames = await getModelNames();
+    const modelNames = await getModelNames(true);
 
     interface modelImage {
       name: string;
@@ -234,7 +236,7 @@ app.get("/", async function (req, res) {
       try {
         const images: image[] = await new Promise(function (resolve, reject) {
           db.all(
-            `SELECT id, file_path as url, prompt FROM images WHERE name = ? ORDER BY RANDOM() LIMIT 1`,
+            /*SQL*/`SELECT id, file_path as url, prompt FROM images WHERE name = ? ORDER BY RANDOM() LIMIT 1`,
             [model.name],
             (err, rows) => (err ? reject(err) : resolve(rows as image[]))
           );
@@ -254,7 +256,9 @@ app.get("/", async function (req, res) {
       if (modelImage.images) {
         for (let ii = 0; ii < modelImage.images.length; ii++) {
           const img = modelImage.images[ii];
-          gridImages += `<div>${card(img)}<h2>${formatName(modelImage.name)}</h2></div>`;
+          gridImages += `<a style="color: inherit; text-decoration: none;" href="/models/${modelImage.name}">${card(img)}<h2>${formatName(
+            modelImage.name
+          )}</h2></a>`;
         }
       }
     }
@@ -265,7 +269,7 @@ app.get("/", async function (req, res) {
 
     content += grid;
 
-    const nav = renderNav({ names: modelNames });
+    const nav = renderNav({ names: await getModelNames(false) });
 
     const data = {
       pageTitle: "AI Model Gallery",
@@ -291,7 +295,7 @@ app.get("/models/:name", async function (req, res) {
     });
     const content = renderImages(images);
 
-    const nav = renderNav({ names: await getModelNames() });
+    const nav = renderNav({ names: await getModelNames(false) });
 
     res.send(
       base({
