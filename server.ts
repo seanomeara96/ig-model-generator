@@ -8,7 +8,8 @@ import { getDatabaseInstance } from "./db";
 import { home } from "./pages/home";
 import { modelGallery } from "./pages/model-gallery";
 import { base } from "./components/base";
-
+import { image } from "./types";
+import { gallery } from "./components/gallery";
 const db = getDatabaseInstance();
 const app = express();
 
@@ -35,8 +36,8 @@ function creationForm(opts: {
   for (let i = 0; i < opts.scenarioPromptArr.length; i++) {
     const { scenario, prompt } = opts.scenarioPromptArr[i];
     const newScenario = `<option value="${scenario}">${scenario}</option>`;
-    if(!scenarioOptionsStr.includes(newScenario)){
-        scenarioOptionsStr += newScenario;
+    if (!scenarioOptionsStr.includes(newScenario)) {
+      scenarioOptionsStr += newScenario;
     }
     scenarioPromptsOptionsStr += `<option value="${prompt}" data-parent="${scenario}">${prompt}</option>`;
   }
@@ -76,18 +77,40 @@ function creationForm(opts: {
 
 app.get("/create", async function (req, res) {
   try {
-    const promptsArr = await new Promise(function (resolve, reject) {
+    const promptsArr = (await new Promise(function (resolve, reject) {
       db.all("SELECT scenario, prompt FROM prompts", (err, rows) =>
         err
           ? reject(err)
           : resolve(rows as { scenario: string; prompt: string }[])
       );
-    })as { scenario: string; prompt: string }[]
+    })) as { scenario: string; prompt: string }[];
+
+    res.send(
+      base({
+        pageTitle: "create a new model",
+        metaDescription: "create a new model",
+        content: creationForm({ scenarioPromptArr: promptsArr }),
+      })
+    );
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.get("/all", async function (req, res) {
+  try {
+    const images: image[] = (await new Promise((r, j) =>
+      db.all(
+        "SELECT id, file_path as url, prompt, name FROM images ORDER BY RANDOM()",
+        (err, rows) => (err ? j(err) : r(rows as image[]))
+      )
+    )) as image[];
 
     res.send(base({
-      pageTitle: "create a new model",
-      metaDescription: "create a new model",
-      content: creationForm({scenarioPromptArr: promptsArr})
+      pageTitle: "All images",
+      metaDescription: "All images random order",
+      content: gallery(images),
     }));
   } catch (err) {
     console.log(err);

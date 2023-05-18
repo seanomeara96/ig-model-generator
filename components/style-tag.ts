@@ -88,7 +88,7 @@ nav a:hover {
 }
 
 #container div {
-  width: 100%;
+  width: 50%;
 }
 
 #container div img {
