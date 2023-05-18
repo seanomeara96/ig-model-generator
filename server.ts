@@ -8,7 +8,8 @@ import { getDatabaseInstance } from "./db";
 import { home } from "./pages/home";
 import { modelGallery } from "./pages/model-gallery";
 import { base } from "./components/base";
-
+import { image } from "./types";
+import { gallery } from "./components/gallery";
 const db = getDatabaseInstance();
 const app = express();
 app.use(express.json())
