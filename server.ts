@@ -77,13 +77,17 @@ function creationForm(opts: {
 
 app.get("/create", async function (req, res) {
   try {
-    const promptsArr = (await new Promise(function (resolve, reject) {
+    interface scenarioPromptObj {
+      scenario: string;
+      prompt: string;
+    }
+    const promptsArr: scenarioPromptObj[] = (await new Promise(function (resolve, reject) {
       db.all("SELECT scenario, prompt FROM prompts", (err, rows) =>
         err
           ? reject(err)
-          : resolve(rows as { scenario: string; prompt: string }[])
+          : resolve(rows as scenarioPromptObj[])
       );
-    })) as { scenario: string; prompt: string }[];
+    })) as scenarioPromptObj[];
 
     res.send(
       base({
