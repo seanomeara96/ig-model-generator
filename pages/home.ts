@@ -3,7 +3,7 @@ import { heroGrid } from "../components/hero-grid";
 import { nav } from "../components/nav";
 import { image } from "../types";
 import { getModelNames } from "../utils/get-model-names";
-import { getRandomModelImage } from "../utils/get-random-model-image";
+import { getRandomModelImages } from "../utils/get-random-model-images";
 
 export function home(): Promise<string> {
   return new Promise(async function (resolve, reject) {
@@ -13,7 +13,7 @@ export function home(): Promise<string> {
       for (let i = 0; i < models.length; i++) {
         const model = models[i];
         try {
-          const images: image[] = await getRandomModelImage(model.name);
+          const images: image[] = await getRandomModelImages(model.name);
           modelImages.push(images);
         } catch (err) {
           console.log(err);

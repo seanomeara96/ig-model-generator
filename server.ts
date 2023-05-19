@@ -12,6 +12,7 @@ import { createGallery } from "./create-gallery";
 import { getRandomPrompt } from "./utils/get-random-prompt";
 import { createNewModel } from "./pages/create-new-model";
 import { deleteImageById } from "./utils/delete-image-by-id";
+import { randomGallery } from "./pages/random";
 
 dotenv.config();
 const db = getDatabaseInstance();
@@ -23,6 +24,17 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.get("/", async function (req, res) {
   try {
     res.send(await home());
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.get(["/random", "/random/:limit"], async function (req, res) {
+  try {
+    let limit = 30;
+    if (req.params.limit) limit = parseInt(req.params.limit);
+    res.send(await randomGallery(limit));
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
