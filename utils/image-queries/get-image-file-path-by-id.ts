@@ -1,4 +1,4 @@
-import { getDatabaseInstance } from "../db";
+import { getDatabaseInstance } from "../../db";
 
 export function getImageFilePathById(id: string): Promise<string> {
   return new Promise(function (resolve, reject) {

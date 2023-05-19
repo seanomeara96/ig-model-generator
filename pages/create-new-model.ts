@@ -1,12 +1,13 @@
 import { base } from "../components/base";
 import { creationForm } from "../components/creation-form";
 
-export function createNewModel(prompt: string): string {
-  return base({
+export async function createNewModel(prompt: string): Promise<string> {
+  return await base({
     pageTitle: "create a new model",
     metaDescription: "create a new model",
-    content: creationForm({
-      samplePrompt: prompt,
-    }),
+    content:
+      creationForm({
+        samplePrompt: prompt,
+      }) + `<script src="/assets/create-model.js"></script>`,
   });
 }

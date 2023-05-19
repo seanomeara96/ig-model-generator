@@ -1,9 +1,9 @@
 import { base } from "../components/base";
 import { heroGrid } from "../components/hero-grid";
-import { nav } from "../components/nav";
+
 import { image } from "../types";
 import { getModelNames } from "../utils/get-model-names";
-import { getRandomModelImages } from "../utils/get-random-model-images";
+import { getRandomModelImages } from "../utils/image-queries/get-random-model-images";
 
 export function home(): Promise<string> {
   return new Promise(async function (resolve, reject) {
@@ -23,12 +23,10 @@ export function home(): Promise<string> {
 
       const content = heroGrid(modelImages);
 
-      const navElement = nav({ names: await getModelNames(false) });
-
       const data = {
         pageTitle: "AI Model Gallery",
         metaDescription: "Here you'll find a gallery  of AI generated models",
-        content: navElement + content,
+        content: content,
       };
 
       resolve(base(data));

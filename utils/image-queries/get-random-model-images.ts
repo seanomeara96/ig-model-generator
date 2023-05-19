@@ -1,5 +1,5 @@
-import { getDatabaseInstance } from "../db";
-import { image } from "../types";
+import { getDatabaseInstance } from "../../db";
+import { image } from "../../types";
 const db = getDatabaseInstance();
 
 export function getRandomModelImages(

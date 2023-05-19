@@ -1,5 +1,5 @@
-import { getDatabaseInstance } from "../db";
-import { image } from "../types";
+import { getDatabaseInstance } from "../../db";
+import { image } from "../../types";
 
 export function getRandomImages(limit = 5): Promise<image[]> {
   return new Promise(function (resolve, reject) {

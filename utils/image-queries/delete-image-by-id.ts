@@ -1,4 +1,4 @@
-import { getDatabaseInstance } from "../db";
+import { getDatabaseInstance } from "../../db";
 import { getImageFilePathById } from "./get-image-file-path-by-id";
 import fs from "fs";
 
