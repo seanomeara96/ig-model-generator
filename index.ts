@@ -19,7 +19,7 @@ const model =
 const models = [
   [
     "odette-jenner",
-    "Photograph dark brown hair and (((blue eyes:8))) individual irish girl (Odette Yustman | [[[Kylie Jenner]]]), background cozy coffee shop",
+    "dark brown hair and (((blue eyes:8))) individual irish girl (Odette Yustman | [[[Kylie Jenner]]])",
   ],
   [
     "ana-agron",
