@@ -1,4 +1,4 @@
-export const styleTag = /*html*/`<style>
+export const styleTag = /*html*/ `<style>
   
 html,body {
     font-family: Arial, sans-serif;
@@ -96,6 +96,10 @@ nav a:hover {
   aspect-ratio:512/768;
 }
 
+.default-aspect {
+  aspect-ratio:512/768;
+}
+
 @media (min-width: 500px) {
   #container div {
     width: 50%;
@@ -133,4 +137,4 @@ nav a:hover {
   animation-name: fadein;
   animation-duration: 1s;
 }
-</style>`
+</style>`;
