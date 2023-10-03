@@ -3,13 +3,17 @@ import { image } from "../types";
 import { getImageById } from "../utils/image-queries/get-image-by-id";
 
 export async function editImage(id: string): Promise<string> {
-  const image = await getImageById(id);
-
-  return base({
-    pageTitle: "Edit Image",
-    metaDescription: "Edit the image of your model",
-    content: imageEditor(image),
-  });
+ try {
+    const image = await getImageById(id);
+  
+    return base({
+      pageTitle: "Edit Image",
+      metaDescription: "Edit the image of your model",
+      content: imageEditor(image),
+    });
+  } catch (err) {
+   throw err;
+  }
 }
 
 function imageEditor(image: image) {
