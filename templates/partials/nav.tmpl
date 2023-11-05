@@ -1,0 +1,16 @@
+{{ define "nav" }}
+
+    <header>
+        <h1>{{.SiteTitle}}</h1>
+        <nav>  
+            <ul>
+              <li><a href="/">Home</a></li>
+              {{ range .Names}}
+                <li><a href="/models/{{.}}">{{.}}</a></li>
+              {{ end }}
+            </ul>
+        </nav>
+    </header>
+   
+
+{{ end }}

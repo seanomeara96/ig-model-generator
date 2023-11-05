@@ -1,0 +1,12 @@
+{{ define "HeroGrid" }}
+<div class="img-grid">
+    {{ range .Collections }}
+        {{ range . }}
+            <a 
+            class="fade-grid-item" 
+            style="display: none; color: inherit; text-decoration: none;" 
+            href="/models/{{.Name}}">{{ template "ImageCard" .}}<h2>{{.Name}}</h2></a>
+        {{ end }}
+    {{ end }}
+</div>
+{{ end }}

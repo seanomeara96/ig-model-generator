@@ -1,0 +1,7 @@
+{{ define "gallery" }}
+    <div id="container">
+        {{ range .Images }}
+            {{ template "ImageCard" .}}
+        {{ end }}
+   </div>
+{{ end }}

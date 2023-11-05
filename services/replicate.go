@@ -1,6 +1,8 @@
-import Replicate from "replicate";
+package services
 
-export function run(prompt: string): Promise<string> {
+//import Replicate from "replicate";
+
+/*export function run(prompt: string): Promise<string> {
   return new Promise(async function (resolve, reject) {
     try {
       const options = {
@@ -21,4 +23,4 @@ export function run(prompt: string): Promise<string> {
       reject(err);
     }
   });
-}
+}*/
