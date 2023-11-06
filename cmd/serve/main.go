@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"html/template"
 	"ig-model-generator/models"
 	"ig-model-generator/services"
+	"ig-model-generator/utils"
 	"log"
 	"net/http"
 
@@ -14,6 +16,15 @@ import (
 )
 
 func main() {
+
+	port := flag.String("port", "", "port")
+
+	flag.Parse()
+
+	if *port == "" {
+		panic("must supply port")
+	}
+
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)
@@ -25,7 +36,7 @@ func main() {
 	}
 	defer db.Close()
 
-	styleSheet := "main.css"
+	styleSheet := "main6.css"
 
 	var commonPageData = models.CommonPageData{
 		SiteTitle:  "Virtual Vogue",
@@ -33,9 +44,20 @@ func main() {
 		StyleSheet: styleSheet,
 	}
 
-	tmpl := template.Must(template.ParseGlob("./templates/**/*.tmpl"))
+	funcMap := template.FuncMap{
+		"FormatName": utils.FormatName,
+	}
+	tmpl, err := template.New("ai-influencers").Funcs(funcMap).ParseGlob("./templates/**/*.tmpl")
+	if err != nil {
+		panic(err)
+	}
 
 	service := services.NewService(db)
+	names, err := service.GetModelNames(false)
+	if err != nil {
+		panic(err)
+	}
+	commonPageData.Names = names
 
 	r := mux.NewRouter()
 
@@ -45,7 +67,7 @@ func main() {
 	r.PathPrefix("/images/").Handler(http.StripPrefix("/images/", imagesFS))
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		modelNames, err := service.GetModelNames(true)
+		modelNames, err := service.GetModelNames(false)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
@@ -53,7 +75,7 @@ func main() {
 
 		var collections [][]models.Image
 		for i, name := range modelNames {
-			if i > 5 {
+			if i > 4 {
 				break
 			}
 			collection, err := service.GetRandomModelImages(name, 1)
@@ -68,7 +90,6 @@ func main() {
 			CommonPageData:  commonPageData,
 			PageTitle:       "Virtual Modelling Agency",
 			MetaDescription: "Welcome to virtual vogue, the virtual ai modelling agency",
-			Names:           modelNames,
 		}
 
 		d := models.HomePageData{
@@ -83,17 +104,10 @@ func main() {
 		vars := mux.Vars(r)
 		name := vars["name"]
 
-		names, err := service.GetModelNames(true)
-		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
 		base := models.BasePageData{
 			CommonPageData:  commonPageData,
 			PageTitle:       "Virtual Modelling Agency",
 			MetaDescription: "Welcome to virtual vogue, the virtual ai modelling agency",
-			Names:           names,
 		}
 
 		images, err := service.GetAllModelImages(name)
@@ -110,6 +124,31 @@ func main() {
 		tmpl.ExecuteTemplate(w, "modelgallery", gd)
 	}).Methods(http.MethodGet)
 
+	r.HandleFunc("/create", func(w http.ResponseWriter, r *http.Request) {
+		prompt, err := service.GetRandomPrompt()
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		base := models.BasePageData{
+			CommonPageData:  commonPageData,
+			PageTitle:       "create a model",
+			MetaDescription: "create a model",
+		}
+
+		cpd := models.ModelCreationPageData{
+			BasePageData: base,
+			SamplePrompt: prompt,
+		}
+
+		err = tmpl.ExecuteTemplate(w, "createmodel", cpd)
+		if err != nil {
+			log.Println(err)
+		}
+
+	}).Methods(http.MethodGet)
+
 	//r.HandleFunc("/random/")
 	//r.HandleFunc("/create/")
 	//r.HandleFunc("/create/test/")
@@ -117,6 +156,6 @@ func main() {
 	//r.HandleFunc("/images/{id}/delete/")
 	//r.HandleFunc("/images/{id}/edit/")
 
-	log.Println("Listening on 3000")
-	http.ListenAndServe(":3000", r)
+	log.Println("Listening on " + *port)
+	http.ListenAndServe(":"+*port, r)
 }

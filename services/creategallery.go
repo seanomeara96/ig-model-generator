@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"ig-model-generator/utils"
 	"io"
 	"log"
 	"math/rand"
@@ -19,11 +20,11 @@ func (s *Service) CreateGallery(name, description string) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Creating gallery for %s", formatName(name))
+	log.Printf("Creating gallery for %s", utils.FormatName(name))
 	for i, prompt := range prompts {
 		log.Printf("Creating image %d of %d", i+1, len(prompts))
 		customPrompt := strings.ReplaceAll(prompt, "influencer_name", description)
-		imageURL, err := generateImage(customPrompt)
+		imageURL, err := s.GenerateImage(customPrompt)
 		if err != nil {
 			return err
 		}
@@ -54,14 +55,15 @@ func generateRandomString(length int) string {
 	return string(result)
 }
 
-func generateImage(prompt string) (string, error) {
+func (s *Service) GenerateImage(prompt string) (string, error) {
 	client, err := replicate.NewClient(replicate.WithTokenFromEnv())
 	if err != nil {
 		return "", err
 	}
 	version := os.Getenv("REPLICATE_MODEL")
 	input := replicate.PredictionInput{
-		"prompt": prompt,
+		"prompt":          prompt,
+		"negative_prompt": "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck",
 	}
 	prediction, err := client.CreatePrediction(context.Background(), version, input, nil, false)
 	if err != nil {

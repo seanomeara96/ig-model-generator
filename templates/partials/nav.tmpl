@@ -1,4 +1,4 @@
-{{ define "nav" }}
+{{ define "old-nav" }}
 
     <header>
         <h1><a style="color: inherit" href="/">{{.SiteTitle}}</a></h1>
@@ -12,5 +12,22 @@
         </nav>
     </header>
    
+
+{{ end }}
+
+
+{{ define "nav" }}
+<nav>
+  <input type="checkbox" id="nav" class="hidden"/>
+  <label for="nav" class="nav-open"><i></i><i></i><i></i></label>
+  <div class="nav-container">
+    <ul>
+        <li><a href="/">Home</a></li>
+    {{ range .Names }}
+        <li><a href="/models/{{.}}">{{ . | FormatName}}</a></li>
+    {{ end }}
+    </ul>
+  </div>
+</nav>
 
 {{ end }}

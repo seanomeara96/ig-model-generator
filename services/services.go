@@ -3,7 +3,6 @@ package services
 import (
 	"database/sql"
 	"ig-model-generator/models"
-	"strings"
 )
 
 type Service struct {
@@ -149,14 +148,12 @@ func (s *Service) GetPrompts() ([]string, error) {
 	return prompts, nil
 }
 
-func formatName(hyphenatedLowerCaseName string) string {
-	sentenceCase := func(sentence string) string {
-		words := strings.Split(sentence, " ")
-		res := make([]string, len(words))
-		for i, word := range words {
-			res[i] = strings.Title(word)
-		}
-		return strings.Join(res, " ")
+func (s *Service) GetRandomPrompt() (string, error) {
+	var prompt string
+	q := "SELECT prompt FROM prompts ORDER BY RANDOM() LIMIT 1"
+	err := s.db.QueryRow(q).Scan(&prompt)
+	if err != nil {
+		return prompt, err
 	}
-	return sentenceCase(strings.Join(strings.Split(hyphenatedLowerCaseName, "-"), " "))
+	return prompt, nil
 }

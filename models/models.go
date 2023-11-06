@@ -11,13 +11,13 @@ type CommonPageData struct {
 	SiteTitle  string
 	Env        string
 	StyleSheet string
+	Names      []string
 }
 
 type BasePageData struct {
 	CommonPageData
 	PageTitle       string
 	MetaDescription string
-	Names           []string
 }
 
 type HomePageData struct {
@@ -28,4 +28,9 @@ type HomePageData struct {
 type ModelGalleryData struct {
 	BasePageData
 	Images []Image
+}
+
+type ModelCreationPageData struct {
+	BasePageData
+	SamplePrompt string
 }
