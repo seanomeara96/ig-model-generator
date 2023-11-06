@@ -7,10 +7,25 @@ type Image struct {
 	Name   string
 }
 
-type HomePageData struct {
+type CommonPageData struct {
+	SiteTitle  string
+	Env        string
+	StyleSheet string
+}
+
+type BasePageData struct {
+	CommonPageData
 	PageTitle       string
 	MetaDescription string
-	Collections     [][]Image
-	SiteTitle       string
 	Names           []string
+}
+
+type HomePageData struct {
+	BasePageData
+	Collections [][]Image
+}
+
+type ModelGalleryData struct {
+	BasePageData
+	Images []Image
 }

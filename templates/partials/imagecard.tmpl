@@ -1,7 +1,7 @@
 {{ define "ImageCard" }}
 <div class="fade-grid-item" style="visibility: hidden; position:relative">
     <img src="/{{.URL}}" alt="{{.Prompt}}"/>
-          <div style="position: absolute; bottom:0;  display: flex; gap: 1rem" >
+          <!--<div style="position: absolute; bottom:0;  display: flex; gap: 1rem" >
             <button><a href="/images/{{.ID}}/edit">Edit</a></button>
             <form 
               class="delete-form"
@@ -10,6 +10,6 @@
               >
                 <button>Delete</button>
             </form>
-          </div>
+          </div> -->
       </div>
   {{ end }}

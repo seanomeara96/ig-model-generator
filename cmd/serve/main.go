@@ -25,6 +25,14 @@ func main() {
 	}
 	defer db.Close()
 
+	styleSheet := "main.css"
+
+	var commonPageData = models.CommonPageData{
+		SiteTitle:  "Virtual Vogue",
+		Env:        "dev",
+		StyleSheet: styleSheet,
+	}
+
 	tmpl := template.Must(template.ParseGlob("./templates/**/*.tmpl"))
 
 	service := services.NewService(db)
@@ -44,33 +52,63 @@ func main() {
 		}
 
 		var collections [][]models.Image
-		for _, name := range modelNames {
+		for i, name := range modelNames {
+			if i > 5 {
+				break
+			}
 			collection, err := service.GetRandomModelImages(name, 1)
 			if err != nil {
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
-
 			collections = append(collections, collection)
 		}
 
-		d := models.HomePageData{
+		base := models.BasePageData{
+			CommonPageData:  commonPageData,
 			PageTitle:       "Virtual Modelling Agency",
 			MetaDescription: "Welcome to virtual vogue, the virtual ai modelling agency",
-			Collections:     collections,
 			Names:           modelNames,
-			SiteTitle:       "Virtual Vogue",
+		}
+
+		d := models.HomePageData{
+			BasePageData: base,
+			Collections:  collections,
 		}
 
 		tmpl.ExecuteTemplate(w, "home", d)
-	})
+	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/models/{name}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		name := vars["name"]
 
-		w.Write([]byte("hello " + name))
-	})
+		names, err := service.GetModelNames(true)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		base := models.BasePageData{
+			CommonPageData:  commonPageData,
+			PageTitle:       "Virtual Modelling Agency",
+			MetaDescription: "Welcome to virtual vogue, the virtual ai modelling agency",
+			Names:           names,
+		}
+
+		images, err := service.GetAllModelImages(name)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		gd := models.ModelGalleryData{
+			BasePageData: base,
+			Images:       images,
+		}
+
+		tmpl.ExecuteTemplate(w, "modelgallery", gd)
+	}).Methods(http.MethodGet)
 
 	//r.HandleFunc("/random/")
 	//r.HandleFunc("/create/")

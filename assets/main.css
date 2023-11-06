@@ -21,23 +21,30 @@ header h1 {
   text-align: center;
 }
 
-nav {
+.nav {
   display: flex;
   justify-content: center;
 }
 
-nav ul {
+.nav .nav-items {
+  display: none;
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
-nav li {
+@media(min-width: 800px){
+    .nav .nav-items {
+        display: block;
+    }
+}
+
+.nav .nav-items .nav-items__item {
   display: inline-block;
   margin: 10px;
 }
 
-nav a {
+.nav a {
   display: block;
   padding: 10px;
   color: #fff;

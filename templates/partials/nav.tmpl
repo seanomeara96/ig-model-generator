@@ -1,10 +1,10 @@
 {{ define "nav" }}
 
     <header>
-        <h1>{{.SiteTitle}}</h1>
-        <nav>  
-            <ul>
-              <li><a href="/">Home</a></li>
+        <h1><a style="color: inherit" href="/">{{.SiteTitle}}</a></h1>
+        <nav class="nav">  
+            <ul class="nav-items" >
+              <li class="nav-items__item" ><a href="/">Home</a></li>
               {{ range .Names}}
                 <li><a href="/models/{{.}}">{{.}}</a></li>
               {{ end }}

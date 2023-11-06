@@ -1,42 +1,79 @@
 package test
 
 import (
+	"database/sql"
 	"html/template"
 	"ig-model-generator/models"
+	"ig-model-generator/services"
 	"os"
 	"testing"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestTemplates(t *testing.T) {
+	db, err := sql.Open("sqlite3", "../main.db")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	service := services.NewService(db)
+
 	tmpl, err := template.ParseGlob("../templates/**/*.tmpl")
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	collection := []models.Image{
-		models.Image{
-			ID:     1,
-			URL:    "https://plus.unsplash.com/premium_photo-1666264200744-51f90d07c09e?auto=format&fit=crop&q=80&w=1470&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-			Prompt: "sample prompt",
-			Name:   "some-person",
-		},
+	names, err := service.GetModelNames(true)
+	if err != nil {
+		t.Error(err)
+		return
 	}
 
-	collections := [][]models.Image{
-		collection,
+	collections := [][]models.Image{}
+	for _, name := range names {
+		collection, err := service.GetRandomModelImages(name, 5)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		collections = append(collections, collection)
+	}
+
+	c := models.CommonPageData{
+		PageTitle:       "test",
+		MetaDescription: "description",
+		SiteTitle:       "virtual vogue",
+		Names:           names,
 	}
 
 	d := models.HomePageData{
-		PageTitle:       "test",
-		MetaDescription: "description",
-		Collections:     collections,
-		SiteTitle:       "virtual vogue",
-		Names:           []string{"Sean", "Steven"},
+		CommonPageData: c,
+		Collections:    collections,
 	}
 
 	err = tmpl.ExecuteTemplate(os.Stdout, "home", d)
 	if err != nil {
 		t.Error(err)
+		return
+	}
+
+	modelImages, err := service.GetRandomModelImages(names[0], 5)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	gd := models.ModelGalleryData{
+		CommonPageData: c,
+		Images:         modelImages,
+	}
+
+	err = tmpl.ExecuteTemplate(os.Stdout, "modelgallery", gd)
+	if err != nil {
+		t.Error(err)
+		return
 	}
 }
