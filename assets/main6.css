@@ -22,7 +22,10 @@ header h1 {
 header h1 {
   text-align: center;
 }
-
+.fade-grid-item--hidden {
+  visibility: hidden;
+  position: relative;
+}
 /*.nav {
   display: flex;
   justify-content: center;

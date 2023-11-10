@@ -18,16 +18,19 @@ if (forms) {
   );
 }
 
-const items = document.querySelectorAll(".fade-grid-item");
-if (items) {
-  window.addEventListener("DOMContentLoaded", async function () {
-    if (items && items.length) {
-      for (const item of items) {
-        item.style.display = "inline-block";
-        item.style.visibility = "visible";
-        item.classList.add("animate");
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      }
+const observer = new IntersectionObserver(async function (entries) {
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if (entry.isIntersecting) {
+      // do this
+      entry.target.classList.remove("fade-grid-item--hidden");
+      entry.target.classList.add("animate");
+      await new Promise((resolve) => setTimeout(resolve, 200));
     }
-  });
+  }
+});
+
+const images = document.querySelectorAll(".fade-grid-item");
+for (const img of images) {
+  observer.observe(img);
 }
