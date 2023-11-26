@@ -127,9 +127,9 @@ func (s *Service) GetImageFilePathByID(id int) (string, error) {
 	return filepath, nil
 }
 
-func (s *Service) GetPrompts() ([]string, error) {
-	prompts := []string{}
-	q := "SELECT prompt FROM prompts"
+func (s *Service) GetAllPrompts() ([]models.Prompt, error) {
+	prompts := []models.Prompt{}
+	q := "SELECT id, scenario, prompt FROM prompts"
 	rows, err := s.db.Query(q)
 	if err != nil {
 		return prompts, err
@@ -137,8 +137,8 @@ func (s *Service) GetPrompts() ([]string, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var prompt string
-		err := rows.Scan(&prompt)
+		var prompt models.Prompt
+		err := rows.Scan(&prompt.ID, &prompt.Scenario, &prompt.Prompt)
 		if err != nil {
 			return prompts, err
 		}
@@ -146,6 +146,48 @@ func (s *Service) GetPrompts() ([]string, error) {
 	}
 
 	return prompts, nil
+}
+
+func (s *Service) GetPromptsByScenario(scenario string) ([]models.Prompt, error) {
+	prompts := []models.Prompt{}
+	q := "SELECT id, scenario, prompt FROM prompts WHERE scenario = ?"
+	rows, err := s.db.Query(q, scenario)
+	if err != nil {
+		return prompts, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var prompt models.Prompt
+		err := rows.Scan(&prompt.ID, &prompt.Scenario, &prompt.Prompt)
+		if err != nil {
+			return prompts, err
+		}
+		prompts = append(prompts, prompt)
+	}
+
+	return prompts, nil
+}
+
+func (s *Service) GetAllScenarios() ([]string, error) {
+	q := "SELECT DISTINCT scenario FROM prompts"
+	rows, err := s.db.Query(q)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+
+	scenarios := []string{}
+	for rows.Next() {
+		var scenario string
+		err = rows.Scan(&scenario)
+		if err != nil {
+			return []string{}, err
+		}
+		scenarios = append(scenarios, scenario)
+	}
+
+	return scenarios, nil
 }
 
 func (s *Service) GetRandomPrompt() (string, error) {

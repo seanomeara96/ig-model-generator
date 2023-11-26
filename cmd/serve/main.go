@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"html/template"
 	"ig-model-generator/models"
 	"ig-model-generator/services"
@@ -122,6 +123,46 @@ func main() {
 		}
 
 		tmpl.ExecuteTemplate(w, "modelgallery", gd)
+	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/prompts", func(w http.ResponseWriter, r *http.Request) {
+		scenario := r.URL.Query().Get("scenario")
+
+		prompts, err := []models.Prompt{}, fmt.Errorf("something went wrong fetching prompts")
+
+		if scenario != "" {
+			prompts, err = service.GetPromptsByScenario(scenario)
+		} else {
+			prompts, err = service.GetAllPrompts()
+		}
+
+		if err != nil {
+			log.Printf("Error getting prompts: %v", err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		scenarios, err := service.GetAllScenarios()
+		if err != nil {
+			log.Printf("Error getting scenarios: %v", err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		base := models.BasePageData{
+			CommonPageData:  commonPageData,
+			PageTitle:       "Virtual Modelling Agency",
+			MetaDescription: "Welcome to virtual vogue, the virtual ai modelling agency",
+		}
+		pd := models.PromptListPageData{
+			BasePageData: base,
+			Prompts:      prompts,
+			Scenarios:    scenarios,
+		}
+
+		err = tmpl.ExecuteTemplate(w, "prompts", pd)
+		if err != nil {
+			log.Printf("Error: %v", err)
+		}
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/create", func(w http.ResponseWriter, r *http.Request) {

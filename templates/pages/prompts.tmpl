@@ -1,0 +1,46 @@
+{{ define "prompts" }}
+    {{ template "header" . }}
+    {{ template "nav" . }}
+
+    <style>
+#prompt-list a {
+    text-decoration: none;
+    color: inherit;
+}
+        #prompt-list li {
+            margin-bottom: 1rem;
+        } 
+
+        #scenarios {
+            overflow-x: scroll;
+            white-space: nowrap;
+            display: flex;
+            gap: 1rem;
+            padding: 0;
+        }
+
+        #scenarios li {
+            list-style-type: none;
+            margin-bottom: 1rem;
+        }
+    </style>
+    <ul style="max-width: 1200px; margin: auto; padding: 0 1rem;" id="scenarios">
+        {{ range .Scenarios }}
+            <li>
+                <form  method="GET"><input type="submit" name="scenario" value="{{.}}" /></form>
+            </li>    
+        {{ end }}
+    </ul>
+
+    <div style="max-width: 1200px; margin: auto; padding: 2rem 1rem;">
+
+
+        <ol id="prompt-list">
+            {{ range .Prompts }}
+                <li><a href="/prompts/{{.ID}}">{{.Prompt}}</a></li>
+            {{ end }}
+        </ol>
+    </div>
+
+    {{ template "footer" . }}
+{{ end }}

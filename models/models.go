@@ -7,6 +7,12 @@ type Image struct {
 	Name   string
 }
 
+type Prompt struct {
+	ID       int
+	Scenario string
+	Prompt   string
+}
+
 type CommonPageData struct {
 	SiteTitle  string
 	Env        string
@@ -28,6 +34,12 @@ type HomePageData struct {
 type ModelGalleryData struct {
 	BasePageData
 	Images []Image
+}
+
+type PromptListPageData struct {
+	BasePageData
+	Scenarios []string
+	Prompts   []Prompt
 }
 
 type ModelCreationPageData struct {

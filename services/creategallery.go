@@ -16,10 +16,17 @@ import (
 )
 
 func (s *Service) CreateGallery(name, description string) error {
-	prompts, err := s.GetPrompts()
+	_prompts, err := s.GetAllPrompts()
 	if err != nil {
 		return err
 	}
+
+	prompts := []string{}
+
+	for _, x := range _prompts {
+		prompts = append(prompts, x.Prompt)
+	}
+
 	log.Printf("Creating gallery for %s", utils.FormatName(name))
 	for i, prompt := range prompts {
 		log.Printf("Creating image %d of %d", i+1, len(prompts))
