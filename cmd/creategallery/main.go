@@ -1,8 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
+	"ig-model-generator/services"
+	"log"
 )
 
 func main() {
@@ -18,21 +21,17 @@ func main() {
 		return
 	}
 
-	/*
-	   db, err := sql.Open("sqlite3", "main.db")
+	db, err := sql.Open("sqlite3", "main.db")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	   	if err != nil {
-	   		panic(err)
-	   	}
+	defer db.Close()
 
-	   defer db.Close()
+	service := services.NewService(db)
 
-	   service := services.NewService(db)
+	if err := service.CreateGallery(*name, *description); err != nil {
+		log.Fatal(err)
+	}
 
-	   err := service.CreateGallery(name, description)
-
-	   	if err != nil {
-	   		log.Error(err)
-	   	}
-	*/
 }
