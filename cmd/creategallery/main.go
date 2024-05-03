@@ -6,9 +6,14 @@ import (
 	"fmt"
 	"ig-model-generator/services"
 	"log"
+
+	"github.com/joho/godotenv"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
+
+	godotenv.Load()
 
 	name := flag.String("name", "", "model name (lowercase & hyphenated)")
 

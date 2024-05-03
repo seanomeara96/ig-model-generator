@@ -58,5 +58,4 @@ func TestCreateImage(t *testing.T) {
 		t.Errorf("Could not generate image. %v", err)
 		return
 	}
-
 }
