@@ -14,6 +14,31 @@ import (
 	"github.com/replicate/replicate-go"
 )
 
+func (s *Service) SaveModel(name, description string) error {
+	var count int
+	if err := s.db.QueryRow(`SELECT count(*) FROM models WHERE name = ?`, name).Scan(&count); err != nil {
+		return fmt.Errorf("Could not count models by name in save model. %w", err)
+	}
+
+	if count > 0 {
+		return fmt.Errorf("Model already exists by that name")
+	}
+
+	if err := s.db.QueryRow(`SELECT count(*) FROM models WHERE description = ?`, description).Scan(&count); err != nil {
+		return fmt.Errorf("Could not count models by description in save model. %w", err)
+	}
+
+	if count > 0 {
+		return fmt.Errorf("Model alread exists byt that description")
+	}
+
+	if _, err := s.db.Exec(`INSERT INTO models(name, description) VALUES (?, ?)`, name, description); err != nil {
+		return fmt.Errorf("Failed to save model at savemodel. %w", err)
+	}
+
+	return nil
+}
+
 func (s *Service) getPromptArray() ([]string, error) {
 	_prompts, err := s.GetAllPrompts()
 	if err != nil {
@@ -29,7 +54,7 @@ func (s *Service) getPromptArray() ([]string, error) {
 }
 
 func insertInfluencerDescription(prompt, description string) string {
-	return strings.ReplaceAll(prompt, "influencer_name", "( "+description+" )")
+	return strings.ReplaceAll(prompt, "influencer_name", "("+description+")")
 }
 
 func (s *Service) CreateGallery(name, description string) error {
@@ -94,6 +119,7 @@ func (s *Service) GenerateImage(prompt string) (string, error) {
 
 	prediction, ok := output.([]interface{})
 	if !ok {
+		log.Println("[DEBUG] Issue with output.", output)
 		return "", fmt.Errorf("output was not an interface slice")
 	}
 

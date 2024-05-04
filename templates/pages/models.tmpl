@@ -1,0 +1,14 @@
+{{ define "models" }}
+    {{ template "header" . }}
+    {{ template "nav" . }}
+
+    <main>
+        <ul>
+            {{ range .Names}}
+                <li>{{ . }}</li>
+            {{end }}
+        </ul>
+    </main>
+
+    {{ template "footer" . }}
+{{ end }}

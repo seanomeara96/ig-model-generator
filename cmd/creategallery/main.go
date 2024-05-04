@@ -35,6 +35,10 @@ func main() {
 
 	service := services.NewService(db)
 
+	if err := service.SaveModel(*name, *description); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := service.CreateGallery(*name, *description); err != nil {
 		log.Fatal(err)
 	}

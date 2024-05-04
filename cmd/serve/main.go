@@ -98,8 +98,36 @@ func main() {
 			Collections:  collections,
 		}
 
-		tmpl.ExecuteTemplate(w, "home", d)
+		if err := tmpl.ExecuteTemplate(w, "home", d); err != nil {
+			log.Printf("[ERROR] Could not execute home template. %v", err)
+		}
 	}).Methods(http.MethodGet)
+
+	r.HandleFunc("/models/", func(w http.ResponseWriter, r *http.Request) {
+		names, err := service.GetModelNames(false)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+
+		base := models.BasePageData{
+			CommonPageData:  commonPageData,
+			PageTitle:       "Virtual Models",
+			MetaDescription: "See the full list of virtual models",
+		}
+
+		type ModelsPageData struct {
+			models.BasePageData
+			Names []string
+		}
+
+		d := ModelsPageData{base, names}
+
+		if err := tmpl.ExecuteTemplate(w, "models", d); err != nil {
+			log.Printf("[ERROR] Could not render models page. %v", err)
+		}
+
+	})
 
 	r.HandleFunc("/models/{name}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -111,8 +139,14 @@ func main() {
 			MetaDescription: "Welcome to virtual vogue, the virtual ai modelling agency",
 		}
 
-		images, err := service.GetAllModelImages(name)
+		params := services.GetImageParams{
+			Name:   name,
+			Limit:  10,
+			Offset: 0,
+		}
+		images, err := service.GetModelImages(params)
 		if err != nil {
+			log.Printf("Error getting model images. %v", err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -122,7 +156,9 @@ func main() {
 			Images:       images,
 		}
 
-		tmpl.ExecuteTemplate(w, "modelgallery", gd)
+		if err := tmpl.ExecuteTemplate(w, "modelgallery", gd); err != nil {
+			log.Printf("[ERROR] Could not render model gallery tempalate. %v", err)
+		}
 	}).Methods(http.MethodGet)
 
 	r.HandleFunc("/prompts", func(w http.ResponseWriter, r *http.Request) {

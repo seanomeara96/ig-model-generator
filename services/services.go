@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"errors"
 	"ig-model-generator/models"
 )
 
@@ -86,15 +87,39 @@ func (s *Service) DeleteImageByID(id int) error {
 	return err
 }
 
-func (s *Service) GetAllModelImages(name string) ([]models.Image, error) {
-	images := []models.Image{}
+type GetImageParams struct {
+	Name   string
+	Limit  int
+	Offset int
+}
+
+func (s *Service) GetModelImages(params GetImageParams) ([]models.Image, error) {
 	q := "SELECT id, file_path as url, prompt, name FROM images WHERE name = ?"
-	rows, err := s.db.Query(q, name)
+	args := []any{}
+
+	if params.Name == "" {
+		return nil, errors.New("Must provide a name of model (lowercase & hyphenated)")
+	}
+
+	args = append(args, params.Name)
+
+	if params.Limit > 0 {
+		q += " Limit ?"
+		args = append(args, params.Limit)
+	}
+
+	if params.Offset > 0 {
+		q += " OFFSET ?"
+		args = append(args, params.Limit)
+	}
+
+	rows, err := s.db.Query(q, args...)
 	if err != nil {
-		return images, err
+		return nil, err
 	}
 	defer rows.Close()
 
+	images := []models.Image{}
 	for rows.Next() {
 		image := models.Image{}
 		err := rows.Scan(&image.ID, &image.URL, &image.Prompt, &image.Name)
