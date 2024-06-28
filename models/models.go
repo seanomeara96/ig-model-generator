@@ -33,7 +33,8 @@ type HomePageData struct {
 
 type ModelGalleryData struct {
 	BasePageData
-	Images []Image
+	Images   []Image
+	NextPage int
 }
 
 type PromptListPageData struct {

@@ -1,0 +1,7 @@
+{{ define "grid" }}
+    <div class="grid" hx-trigger="revealed" hx-get="?page={{ .NextPage }}" hx-swap="afterend">
+        {{ range .Images }}                    
+            <img src="/{{.URL}}" alt="{{.Prompt}}"/>
+        {{ end }}
+    </div>
+{{ end }}

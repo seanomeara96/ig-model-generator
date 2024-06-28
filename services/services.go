@@ -110,7 +110,7 @@ func (s *Service) GetModelImages(params GetImageParams) ([]models.Image, error) 
 
 	if params.Offset > 0 {
 		q += " OFFSET ?"
-		args = append(args, params.Limit)
+		args = append(args, params.Offset)
 	}
 
 	rows, err := s.db.Query(q, args...)

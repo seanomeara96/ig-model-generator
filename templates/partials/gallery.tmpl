@@ -1,7 +1,33 @@
 {{ define "gallery" }}
-    <div id="container">
-        {{ range .Images }}
-            {{ template "ImageCard" .}}
-        {{ end }}
-   </div>
+    <div  class="grid-container">
+        {{/* 5 images at a time */}}
+        <style>
+.grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-width: 1200px;
+    margin: auto;
+}
+.grid-container .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 5px;
+}
+.grid-container .grid img {
+    display: block;
+    width: 100%;
+    object-position: center;
+    object-fit: cover;
+    aspect-ratio: 512/768;
+}
+        </style>
+    
+        {{ template "grid" . }}
+
+    </div>
 {{ end }}
+
+
+

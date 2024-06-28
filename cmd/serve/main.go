@@ -10,6 +10,7 @@ import (
 	"ig-model-generator/utils"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -132,17 +133,34 @@ func main() {
 	r.HandleFunc("/models/{name}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		name := vars["name"]
+		qVals := r.URL.Query()
+		pageStr := qVals.Get("page")
+		page := 1
+		limit := 6
+		if pageStr != "" {
+			p, err := strconv.Atoi(pageStr)
+			if err != nil {
+				w.WriteHeader(500)
+				return
+			}
+			if p == 0 {
+				page = 1
+			} else {
+				page = p
+			}
+		}
+
+		offset := limit * (page - 1)
 
 		base := models.BasePageData{
 			CommonPageData:  commonPageData,
 			PageTitle:       "Virtual Modelling Agency",
 			MetaDescription: "Welcome to virtual vogue, the virtual ai modelling agency",
 		}
-
 		params := services.GetImageParams{
 			Name:   name,
-			Limit:  10,
-			Offset: 0,
+			Limit:  limit,
+			Offset: offset,
 		}
 		images, err := service.GetModelImages(params)
 		if err != nil {
@@ -151,13 +169,28 @@ func main() {
 			return
 		}
 
-		gd := models.ModelGalleryData{
-			BasePageData: base,
-			Images:       images,
-		}
+		if page == 1 {
+			gd := models.ModelGalleryData{
+				BasePageData: base,
+				Images:       images,
+				NextPage:     page + 1,
+			}
+			if err := tmpl.ExecuteTemplate(w, "modelgallery", gd); err != nil {
+				log.Printf("[ERROR] Could not render model gallery tempalate. %v", err)
+			}
+		} else {
+			if len(images) < 1 {
+				w.Write([]byte{})
+				return
+			}
 
-		if err := tmpl.ExecuteTemplate(w, "modelgallery", gd); err != nil {
-			log.Printf("[ERROR] Could not render model gallery tempalate. %v", err)
+			data := map[string]interface{}{}
+			data["Images"] = images
+			data["NextPage"] = page + 1
+			if err := tmpl.ExecuteTemplate(w, "grid", data); err != nil {
+				log.Printf("[ERROR] Could not render mode gallery grid template. %v", err)
+			}
+
 		}
 	}).Methods(http.MethodGet)
 
