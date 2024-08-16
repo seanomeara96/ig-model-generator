@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -61,12 +60,12 @@ func main() {
 	}
 	commonPageData.Names = names
 
-	r := mux.NewRouter()
+	r := http.NewServeMux()
 
 	assetsFS := http.FileServer(http.Dir("assets"))
 	imagesFS := http.FileServer(http.Dir("images"))
-	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", assetsFS))
-	r.PathPrefix("/images/").Handler(http.StripPrefix("/images/", imagesFS))
+	r.Handle("/assets/", http.StripPrefix("/assets/", assetsFS))
+	r.Handle("/images/", http.StripPrefix("/images/", imagesFS))
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		modelNames, err := service.GetModelNames(false)
@@ -102,27 +101,21 @@ func main() {
 		if err := tmpl.ExecuteTemplate(w, "home", d); err != nil {
 			log.Printf("[ERROR] Could not execute home template. %v", err)
 		}
-	}).Methods(http.MethodGet)
+	})
 
-	r.HandleFunc("/models/", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("GET /models/", func(w http.ResponseWriter, r *http.Request) {
 		names, err := service.GetModelNames(false)
 		if err != nil {
 			w.WriteHeader(500)
 			return
 		}
 
-		base := models.BasePageData{
-			CommonPageData:  commonPageData,
-			PageTitle:       "Virtual Models",
-			MetaDescription: "See the full list of virtual models",
+		d := map[string]any{
+			"CommonPageData":  commonPageData,
+			"PageTitle":       "Virtual Models",
+			"MetaDescription": "See the full list of virtual models",
+			"Names":           names,
 		}
-
-		type ModelsPageData struct {
-			models.BasePageData
-			Names []string
-		}
-
-		d := ModelsPageData{base, names}
 
 		if err := tmpl.ExecuteTemplate(w, "models", d); err != nil {
 			log.Printf("[ERROR] Could not render models page. %v", err)
@@ -130,9 +123,8 @@ func main() {
 
 	})
 
-	r.HandleFunc("/models/{name}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		name := vars["name"]
+	r.HandleFunc("GET /models/{name}", func(w http.ResponseWriter, r *http.Request) {
+		name := r.PathValue("name")
 		qVals := r.URL.Query()
 		pageStr := qVals.Get("page")
 		page := 1
@@ -192,9 +184,9 @@ func main() {
 			}
 
 		}
-	}).Methods(http.MethodGet)
+	})
 
-	r.HandleFunc("/prompts", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("GET /prompts", func(w http.ResponseWriter, r *http.Request) {
 		scenario := r.URL.Query().Get("scenario")
 
 		prompts, err := []models.Prompt{}, fmt.Errorf("something went wrong fetching prompts")
@@ -232,9 +224,9 @@ func main() {
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
-	}).Methods(http.MethodGet)
+	})
 
-	r.HandleFunc("/create", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("GET /create", func(w http.ResponseWriter, r *http.Request) {
 		prompt, err := service.GetRandomPrompt()
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -257,7 +249,7 @@ func main() {
 			log.Println(err)
 		}
 
-	}).Methods(http.MethodGet)
+	})
 
 	//r.HandleFunc("/random/")
 	//r.HandleFunc("/create/")
